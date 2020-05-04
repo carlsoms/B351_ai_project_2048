@@ -2,12 +2,6 @@ import pygame
 from tile import *
 from board import *
 
-pygame.init()
-
-win = pygame.display.set_mode((250, 250))
-pygame.display.set_caption("2048")
-speed = 10
-
 
 def new_background():
     bg = pygame.Surface((250, 250))
@@ -25,6 +19,9 @@ def new_background():
 
 
 def run_simple_ai():
+    pygame.init()
+    win = pygame.display.set_mode((250, 250))
+    pygame.display.set_caption("2048")
     run = True
 
     new_board = Board()
@@ -46,7 +43,119 @@ def run_simple_ai():
                 run = False
 
 
+def run_simple_ai_fast():
+    run = True
+
+    new_board = Board()
+    while run:
+        new_board = simple_ai(new_board, True, 3)[0]
+        if game_over(new_board):
+            return new_board
+
+    return new_board
+
+
+def simple_ai_stats():
+    num_tests = 100
+    total_tests = num_tests
+    scores = list()
+
+    while num_tests is not 0:
+        this_board = run_simple_ai_fast()
+        score = this_board.get_highest()
+        scores.append(score)
+        num_tests -= 1
+
+    statistics = dict()
+
+    for score in scores:
+        if score in statistics:
+            statistics[score] += 1
+        else:
+            statistics[score] = 1
+
+    temp_stats = sorted(statistics)
+    temp_stats.reverse()
+    sorted_statistics = dict()
+
+    for stat in temp_stats:
+        percent = statistics[stat] / total_tests
+        percent_string = "%" + str(int(percent * 100))
+        sorted_statistics[stat] = percent_string
+
+    print(sorted_statistics)
+
+
+def run_expectimax():
+    pygame.init()
+    win = pygame.display.set_mode((250, 250))
+    pygame.display.set_caption("2048")
+
+    run = True
+
+    new_board = Board()
+    while run:
+        new_board = expectimax(new_board, True, 2)[0]
+        win.blit(new_background(), (0, 0))
+        this_background = new_background()
+        for tile in new_board.tiles:
+            this_background.blit(tile.get_tile(), tile.position)
+        win.blit(this_background, (0, 0))
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+    return new_board()
+
+
+def run_expectimax_fast():
+    run = True
+
+    new_board = Board()
+    while run:
+        new_board = expectimax(new_board, True, 3)[0]
+        if game_over(new_board):
+            return new_board
+
+
+def run_expectimax_stats():
+    num_tests = 10
+    total_tests = num_tests
+    scores = list()
+
+    while num_tests is not 0:
+        this_board = run_expectimax_fast()
+        score = this_board.get_highest()
+        scores.append(score)
+        num_tests -= 1
+        print(num_tests)
+
+    statistics = dict()
+
+    for score in scores:
+        if score in statistics:
+            statistics[score] += 1
+        else:
+            statistics[score] = 1
+
+    temp_stats = sorted(statistics)
+    temp_stats.reverse()
+    sorted_statistics = dict()
+
+    for stat in temp_stats:
+        percent = statistics[stat] / total_tests
+        percent_string = "%" + str(int(percent * 100))
+        sorted_statistics[stat] = percent_string
+
+    print(sorted_statistics)
+
+
 def run_manual():
+    pygame.init()
+    win = pygame.display.set_mode((250, 250))
+    pygame.display.set_caption("2048")
 
     new_board = Board()
     this_background = new_background()
@@ -66,22 +175,7 @@ def run_manual():
                     this_background.blit(this_tile.get_tile(), this_tile.position)
                 win.blit(this_background, (0, 0))
                 pygame.display.update()
-                # new_board = update_board(new_board, event.key)
-                # new_board.print_board()
-                # print()
 
-
-background = new_background()
-
-board = Board()
-for tile in board.tiles:
-    x = tile.position[0]
-    y = tile.position[1]
-    background.blit(tile.get_tile(), (x, y))
-
-win.blit(background, (0, 0))
-pygame.display.update()
 
 if __name__ == '__main__':
-    run_simple_ai()
-    pygame.quit()
+    run_expectimax_stats()

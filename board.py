@@ -1,4 +1,5 @@
 import copy
+import math
 
 import pygame
 import random
@@ -21,6 +22,7 @@ class Board:
         self.empty_spaces = empty_spaces
         self.tiles = list()
         add_random_tile(self)
+        self.empty_spaces = update_empty(self)
         add_random_tile(self)
 
     def copy(self):
@@ -54,7 +56,8 @@ class Board:
             new_board.append(row)
 
         self.board = new_board
-        self.empty_spaces.remove(position)
+        update_empty(self)
+        update_tile(self)
 
     def equals(self, other_board):
         for x in range(4):
@@ -62,6 +65,42 @@ class Board:
                 if self.board[x][y] != other_board.board[x][y]:
                     return False
         return True
+
+    def get_highest(self):
+        highest = 0
+
+        for x in range(4):
+            for y in range(4):
+                if self.board[x][y] > highest:
+                    highest = self.board[x][y]
+
+        return highest
+
+
+def calc_score(this_board):
+    total_score = 0
+    this_matrix = this_board.board.copy()
+
+    for x in range(4):
+        for y in range(4):
+            total_score += this_matrix[x][y]
+
+    return total_score / 16
+
+
+def calc_heuristic(this_board):
+    weight_matrix = [[math.pow(4, 16), math.pow(4, 15), math.pow(4, 14), math.pow(4, 13)],
+                     [math.pow(4, 9), math.pow(4, 10), math.pow(4, 11), math.pow(4, 12)],
+                     [math.pow(4, 8), math.pow(4, 7), math.pow(4, 6), math.pow(4, 5)],
+                     [math.pow(4, 1), math.pow(4, 2), math.pow(4, 3), math.pow(4, 4)]]
+
+    total = 0
+    for x in range(4):
+        for y in range(4):
+            this_tile = this_board.board[x][y]
+            total += (this_tile * weight_matrix[x][y])
+
+    return total * calc_score(this_board)
 
 
 def update_empty(this_board):
@@ -196,41 +235,6 @@ def add_random_tile(this_board):
     return tile
 
 
-def movable(tiles, key):
-    if key == pygame.K_LEFT:
-        pos = 0
-        bound = 10
-        direction = -6
-    elif key == pygame.K_RIGHT:
-        pos = 0
-        bound = 190
-        direction = 6
-    elif key == pygame.K_UP:
-        pos = 1
-        bound = 10
-        direction = -6
-    else:
-        pos = 1
-        bound = 190
-        direction = 6
-
-    return can_move(pos, bound, tiles, direction)
-
-
-def can_move(variable, bound, tiles, direction):
-    current_tiles = tiles
-
-    for tile in current_tiles:
-        if tile.position[variable] != bound:
-            for tile2 in current_tiles:
-                if tile.position[variable] + (move_speed * direction) == tile2.position[variable]:
-                    if tile.position[0] == tile2.position[0] or tile.position[1] == tile2.position[1]:
-                        return False
-            return True
-
-    return False
-
-
 def game_over(this_board):
     new_board = this_board.copy()
     new_board = update_board(new_board, pygame.K_LEFT)
@@ -257,4 +261,48 @@ def simple_ai(this_board):
         return this_board
 
 
+def expectimax(this_board, max_node, depth):
+    if game_over(this_board) or depth == 0:
+        return this_board, calc_heuristic(this_board)
+    elif max_node:
+        return maximum(this_board, depth)
+    else:
+        return expect(this_board, depth)
+
+
+def expect(this_board, depth):
+    for tile_value in range(2):
+        if tile_value == 1:
+            prob = .9
+        else:
+            prob = .1
+        value = 0
+        this_board.empty_spaces = update_empty(this_board)
+        for successor in this_board.empty_spaces:
+            new_prob = prob * (1 / len(this_board.empty_spaces))
+            new_board = this_board.copy()
+            new_board.insert_tile(successor, tile_value * 2)
+
+            value += new_prob * expectimax(new_board, True, depth - 1)[1]
+
+    return this_board, value
+
+
+def maximum(this_board, depth):
+    value = this_board, float("-inf")
+    successors = [pygame.K_LEFT, pygame.K_UP, pygame.K_RIGHT, pygame.K_DOWN]
+    for successor in successors:
+        test_board = this_board.copy()
+        if not update_board(test_board, successor).equals(this_board):
+            temp_matrix = shift(this_board.board.copy(), successor)
+            temp_board = Board()
+            temp_board.board = temp_matrix
+            update_tile(temp_board)
+            update_empty(temp_board)
+
+            new_value = (temp_board, expectimax(temp_board, False, depth - 1)[1])
+            if new_value[1] > value[1]:
+                value = successor, new_value[1]
+
+    return update_board(this_board, value[0]), value[1]
 

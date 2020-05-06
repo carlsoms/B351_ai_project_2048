@@ -7,6 +7,7 @@ from tile import *
 
 
 class Board:
+
     def __init__(self):
         new_board = list()
         empty_spaces = list()
@@ -76,7 +77,7 @@ class Board:
 
         return highest
 
-
+# function for calculating the total score of teh board (sum of all tile values)
 def calc_score(this_board):
     total_score = 0
     this_matrix = this_board.board.copy()
@@ -87,7 +88,7 @@ def calc_score(this_board):
 
     return total_score / 16
 
-
+# function that return the heuristic value of a input Board object using the weight matrix
 def calc_heuristic(this_board):
     weight_matrix = [[math.pow(4, 16), math.pow(4, 15), math.pow(4, 14), math.pow(4, 13)],
                      [math.pow(4, 9), math.pow(4, 10), math.pow(4, 11), math.pow(4, 12)],
@@ -102,7 +103,7 @@ def calc_heuristic(this_board):
 
     return total * calc_score(this_board)
 
-
+# returns a list of all the empty space positions on the board as tuples
 def update_empty(this_board):
     matrix = this_board.board.copy()
     new_empty = list()
@@ -114,7 +115,7 @@ def update_empty(this_board):
 
     return new_empty
 
-
+# returns a list of all of the tiles on the Board as tile objects
 def update_tile(this_board):
     matrix = this_board.board.copy()
     new_tiles = list()
@@ -127,7 +128,8 @@ def update_tile(this_board):
 
     return new_tiles
 
-
+# takes in a given direction and shifts the tiles in that direction
+# also adds a new random tile and then returns the board with the updated tiles and empty spaces
 def update_board(this_board, key):
     new_board = Board()
     temp_board = this_board.copy()
@@ -146,7 +148,7 @@ def update_board(this_board, key):
     new_board.empty_spaces = update_empty(new_board)
     return new_board
 
-
+# returns a board that is shifted in the input key direction
 def shift(input_matrix, key):
     new_matrix = list()
     this_matrix = input_matrix.copy()
@@ -198,7 +200,7 @@ def shift(input_matrix, key):
 
     return new_matrix
 
-
+# returns in input row shifted to the left
 def shift_row(this_row):
     new_row = list()
     for value in this_row:
@@ -222,7 +224,7 @@ def shift_row(this_row):
 
     return merged_row
 
-
+# inserts a random tile into the input board with value of 2 or 4 and then returns the board with updated tiles and empty spaces
 def add_random_tile(this_board):
     tile_choices = [2, 2, 2, 2, 2, 2, 2, 2, 2, 4]
 
@@ -234,7 +236,7 @@ def add_random_tile(this_board):
     this_board.insert_tile(position, value)
     return tile
 
-
+# returns true when the game is no longer playable
 def game_over(this_board):
     new_board = this_board.copy()
     new_board = update_board(new_board, pygame.K_LEFT)
@@ -247,7 +249,7 @@ def game_over(this_board):
     else:
         return False
 
-
+# returns the state of the board after preforming the simple ai algorithm
 def simple_ai(this_board):
     if not this_board.equals(update_board(this_board, pygame.K_LEFT)):
         return update_board(this_board, pygame.K_LEFT)
@@ -260,7 +262,7 @@ def simple_ai(this_board):
     else:
         return this_board
 
-
+# returns the state of the board after preforming the expectimax algorithm
 def expectimax(this_board, max_node, depth):
     if game_over(this_board) or depth == 0:
         return this_board, calc_heuristic(this_board)
@@ -269,7 +271,8 @@ def expectimax(this_board, max_node, depth):
     else:
         return expect(this_board, depth)
 
-
+# returns a tuple with a board and a value representing the average heuristic
+# value of all the possible boards after making a given move
 def expect(this_board, depth):
     for tile_value in range(2):
         if tile_value == 1:
@@ -287,7 +290,7 @@ def expect(this_board, depth):
 
     return this_board, value
 
-
+# returns tuple containing a board with the maximum expect value as well as its heurisitc value
 def maximum(this_board, depth):
     value = this_board, float("-inf")
     successors = [pygame.K_LEFT, pygame.K_UP, pygame.K_RIGHT, pygame.K_DOWN]

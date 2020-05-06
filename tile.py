@@ -28,6 +28,7 @@ class Tile:
             self.color = (238, 228, 218)
             self.font_color = (119, 110, 101)
 
+    # converts a tile object in to a pygame object that can be drawn
     def get_tile(self):
         tile = pygame.Surface((50, 50))
         tile.fill(self.color)

@@ -2,7 +2,7 @@ import pygame
 from tile import *
 from board import *
 
-
+# creats a background that looks like a 2048 game board
 def new_background():
     bg = pygame.Surface((250, 250))
     bg.fill((205, 193, 180))
@@ -17,7 +17,7 @@ def new_background():
 
     return bg
 
-
+# runs the simple ai until reaching a game over state and displays each step in the pygame window
 def run_simple_ai():
     pygame.init()
     win = pygame.display.set_mode((250, 250))
@@ -43,7 +43,7 @@ def run_simple_ai():
                 run = False
                 pygame.quit()
 
-
+# runs the simple ai until a game over state is reached and then returns the board
 def run_simple_ai_fast():
     run = True
 
@@ -56,37 +56,9 @@ def run_simple_ai_fast():
     return new_board
 
 
-def simple_ai_stats():
-    num_tests = 100
-    total_tests = num_tests
-    scores = list()
-
-    while num_tests is not 0:
-        this_board = run_simple_ai_fast()
-        score = this_board.get_highest()
-        scores.append(score)
-        num_tests -= 1
-
-    statistics = dict()
-
-    for score in scores:
-        if score in statistics:
-            statistics[score] += 1
-        else:
-            statistics[score] = 1
-
-    temp_stats = sorted(statistics)
-    temp_stats.reverse()
-    sorted_statistics = dict()
-
-    for stat in temp_stats:
-        percent = statistics[stat] / total_tests
-        percent_string = "%" + str(int(percent * 100))
-        sorted_statistics[stat] = percent_string
-
-    print(sorted_statistics)
-
-
+# repetedly calls expectimax until a game over state is reached
+# each state is displayed by pygame and then the board is returned
+# once game over is true
 def run_expectimax():
     pygame.init()
     win = pygame.display.set_mode((250, 250))
@@ -112,7 +84,7 @@ def run_expectimax():
 
     return new_board()
 
-
+# returns the resulting board of repetedly prefroming expectimaax until a game over state is reached
 def run_expectimax_fast():
     run = True
 
@@ -122,7 +94,8 @@ def run_expectimax_fast():
         if game_over(new_board):
             return new_board
 
-
+# preforms expectimax ai multiple times at a specified depth until
+# a game over state is reached and returns the result as a dict
 def run_expectimax_stats():
     num_tests = 10
     total_tests = num_tests
@@ -154,7 +127,8 @@ def run_expectimax_stats():
 
     print(sorted_statistics)
 
-
+# preforms simple ai multiple times at a specified depth until a game over state is reached
+# and returns the results as a dict
 def run_simple_ai_stats():
     num_tests = 100
     total_tests = num_tests
@@ -185,7 +159,8 @@ def run_simple_ai_stats():
 
     print(sorted_statistics)
 
-
+# allows the a person to play the game in the same way that the original is played with arrow keys
+# and quits once the game is over
 def run_manual():
     pygame.init()
     win = pygame.display.set_mode((250, 250))
@@ -210,3 +185,5 @@ def run_manual():
                     this_background.blit(this_tile.get_tile(), this_tile.position)
                 win.blit(this_background, (0, 0))
                 pygame.display.update()
+
+    pygame.quit()

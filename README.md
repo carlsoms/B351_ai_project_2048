@@ -17,7 +17,7 @@ the board. For example the game class contains functions for playing
 the game manually, as well as functions for displaying the step-by-step
 process of each AI. The run class is used to create a window for
 users to interact with the code easily and change which way they want
-to run the game. the setup class is used to convert the overall 
+to run the game. The setup class is used to convert the overall 
 file into an executable so that it can be shared. Unfortunately, the
 resulting executable and corresponding data is too big to upload here,
 so conversion will have to be done on your machine. 

@@ -9,7 +9,7 @@ to run the program.(Will not work without Python installed on your
 machine) From there you can select which AI to 
 preview or to play the game manually with arrow keys.
 
-The board class primarily is used to initialize board objects.Each 
+The board class primarily is used to initialize board objects. Each 
 Board contains Tile objects which are used to represent each Tile
 on the overall game board. The game class has different functions
 that change the way the tile and board classes are used to change 
